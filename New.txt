@@ -1,0 +1,65 @@
+import cv2
+from IPython.display import Image, display
+from new.yunet_model import yunet
+
+cap = cv2.VideoCapture('rtsp://admin:admin@192.168.31.45:1935')
+if cap.isOpened(): print("connected to cam")
+
+display_handle=display(None, display_id=True)
+#faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+#facecascade = yunet('face_detection_yunet_2023mar.onnx')
+print("done 1")
+while True:
+    if not cap.isOpened():
+        print("disconnected")
+        break
+    _, frame = cap.read()
+    if _:
+        frame = facecascade.detect(frame)
+        _, frame = cv2.imencode('.jpeg', frame)
+        display_handle.update(Image(data=frame.tobytes()))
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+print("the heck?")
+cap.release()
+display_handle.update(None)
+
+cascade_model
+import cv2
+class cascade:
+    def __init__(self, model):
+        self.classifier = cv2.CascadeClassifier(model)
+    
+    def DrawBoundries(self, img, scaleFactor, minNeighbors, color, text):
+        grey_frame = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        features = self.classifier.detectMultiScale(grey_frame, scaleFactor, minNeighbors)
+        coords = []
+        for (x,y,w,h) in features:
+            cv2.rectangle(img, (x, y), (x+w, y+h), color, 2)
+            cv2.putText(img, text, (x, y-4), cv2.FONT_HERSHEY_COMPLEX, 0.8, color, 1, cv2.LINE_AA)
+            coords = [x,y,w,h]
+        return coords, img
+    
+    def detect(self, img):
+        coords, img = self.DrawBoundries(img, 1.05, 5, (255,0,100), "Face")
+        return img
+
+yunet_model
+import cv2
+
+class yunet:
+    def __init__(self, path):
+        self.detector = cv2.FaceDetectorYN_create(path, "", (0, 0))
+        self.detector.setInputSize((640, 480))
+    def detect(self, img):
+        _, faces = self.detector.detect(img)
+        if faces is not None:
+            for face in faces:
+                box = list(map(int, face[:4]))
+                color = (0,0,255)
+                cv2.rectangle(img, box, color, 5)
+                confidence = face[-1]
+                confidence = "{:.2f}".format(confidence)
+                position = (box[0], box[1] -10)
+                cv2.putText(img, confidence, position, cv2.FONT_HERSHEY_COMPLEX, 0.5, color, 3, cv2.LINE_AA)
+        return img
